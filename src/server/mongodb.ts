@@ -99,7 +99,19 @@ export async function pingDatabase(): Promise<boolean> {
     const client = await getClient();
     await client.db(DB_NAME).command({ ping: 1 });
     return true;
-  } catch {
+  } catch (error: unknown) {
+    const details = error && typeof error === "object"
+      ? {
+          errorType: "name" in error && typeof error.name === "string" ? error.name : "UnknownError",
+          errorCode: "code" in error && typeof error.code === "string" ? error.code : undefined,
+          causeType: "cause" in error && error.cause instanceof Error ? error.cause.name : undefined,
+          causeCode: "cause" in error && error.cause && typeof error.cause === "object"
+            && "code" in error.cause && typeof error.cause.code === "string"
+            ? error.cause.code
+            : undefined,
+        }
+      : { errorType: "UnknownError" };
+    console.warn("Escala MongoDB health check failed", details);
     return false;
   }
 }
