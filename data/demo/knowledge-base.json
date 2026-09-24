@@ -1,0 +1,86 @@
+[
+  {
+    "id": "kb-store-faq-v1",
+    "version": "1.0",
+    "title": "Store FAQ",
+    "type": "store_faq",
+    "status": "ACTIVE",
+    "effectiveFrom": "2026-10-01",
+    "sourceLabel": "Synthetic demo store FAQ",
+    "updatedAt": "2026-10-01T09:00:00+07:00",
+    "tags": ["faq", "care"],
+    "content": "The cotton tote can be spot-cleaned with mild soap and cold water. Do not use bleach or a tumble dryer. When a product fact is not listed in the catalog, ask the seller before making a claim."
+  },
+  {
+    "id": "kb-product-blue-linen-shirt-v1",
+    "version": "1.0",
+    "title": "Blue Linen Shirt product facts",
+    "type": "product_facts",
+    "status": "ACTIVE",
+    "effectiveFrom": "2026-10-01",
+    "sourceLabel": "Synthetic demo product catalog",
+    "updatedAt": "2026-10-01T09:10:00+07:00",
+    "tags": ["blue-linen-shirt", "size-m", "product"],
+    "content": "The Blue Linen Shirt is listed in sizes S, M, L, and XL while stock remains available. The catalog fixture marks size M as available for the demo."
+  },
+  {
+    "id": "kb-shipping-standard-v1",
+    "version": "1.0",
+    "title": "Standard shipping rules",
+    "type": "shipping_rules",
+    "status": "ACTIVE",
+    "effectiveFrom": "2026-10-01",
+    "sourceLabel": "Synthetic demo shipping rules",
+    "updatedAt": "2026-10-01T09:20:00+07:00",
+    "tags": ["shipping", "standard", "delivery"],
+    "content": "Standard delivery to Ho Chi Minh City is normally estimated at 2–4 business days after dispatch. This is an estimate, not a guaranteed arrival time. Carrier status must be checked before making a delivery commitment."
+  },
+  {
+    "id": "kb-returns-exchange-v1",
+    "version": "1.0",
+    "title": "Return and exchange policy",
+    "type": "return_exchange_policy",
+    "status": "ACTIVE",
+    "effectiveFrom": "2026-10-01",
+    "sourceLabel": "Synthetic demo store policy",
+    "updatedAt": "2026-10-01T09:30:00+07:00",
+    "tags": ["returns", "exchange", "fit"],
+    "content": "Exchange eligibility depends on the order, product, delivery date, item condition, and available stock. A seller must verify these details before confirming an exchange."
+  },
+  {
+    "id": "kb-payment-review-v1",
+    "version": "1.0",
+    "title": "Payment discrepancy handling",
+    "type": "seller_policy",
+    "status": "ACTIVE",
+    "effectiveFrom": "2026-10-01",
+    "sourceLabel": "Synthetic demo financial-risk rule",
+    "updatedAt": "2026-10-01T09:40:00+07:00",
+    "tags": ["payment", "refund", "risk"],
+    "content": "Duplicate charges, refund requests, and unresolved payment status require seller or payment-operator review. Escala must not promise a refund or claim that a payment was reversed without verified transaction evidence."
+  },
+  {
+    "id": "kb-approved-answer-availability-v1",
+    "version": "1.0",
+    "title": "Approved availability answer example",
+    "type": "approved_response",
+    "status": "ACTIVE",
+    "effectiveFrom": "2026-10-01",
+    "sourceLabel": "Synthetic demo approved response",
+    "updatedAt": "2026-10-01T09:50:00+07:00",
+    "tags": ["approved-answer", "availability"],
+    "content": "For a routine availability question, the seller may say: ‘Size M is currently listed as available. Standard delivery to Ho Chi Minh City is normally estimated at 2–4 business days after dispatch.’ Do not turn the estimate into a guarantee."
+  },
+  {
+    "id": "kb-seller-constraints-v1",
+    "version": "1.0",
+    "title": "Seller-specific constraints",
+    "type": "seller_constraints",
+    "status": "ACTIVE",
+    "effectiveFrom": "2026-10-01",
+    "sourceLabel": "Synthetic demo seller configuration",
+    "updatedAt": "2026-10-01T10:00:00+07:00",
+    "tags": ["constraints", "side-effects", "escalation"],
+    "content": "Escala cannot cancel orders, issue refunds, change delivery promises, apply exceptional discounts, or send a message externally without explicit seller approval. Public complaint threats and unresolved order-state requests go to the seller queue."
+  }
+]

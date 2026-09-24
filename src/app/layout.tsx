@@ -1,0 +1,18 @@
+import type { Metadata } from "next";
+import "@/styles/globals.css";
+
+export const metadata: Metadata = {
+  title: "Escala — Seller inbox",
+  description:
+    "A clear next step for every buyer conversation. Review evidence, prepare replies, and keep seller decisions in view.",
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
+  return (
+    <html lang="en">
+      <body>{children}</body>
+    </html>
+  );
+}
