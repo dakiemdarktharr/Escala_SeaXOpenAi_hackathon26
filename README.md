@@ -6,66 +6,70 @@
 
 Repository: [github.com/dakiemdarktharr/Escala_SeaXOpenAi_hackathon26](https://github.com/dakiemdarktharr/Escala_SeaXOpenAi_hackathon26)
 
-Escala is a hackathon prototype for marketplace sellers. It turns incoming buyer messages into a grounded, explainable next action: automatically reply to a routine question, prepare a seller draft, ask for missing information, or escalate a risky case.
+Escala is a hackathon prototype for marketplace sellers. Its intended workflow recommends routine replies, seller review, or escalation for risky buyer messages. The current implementation evaluates manually supplied signals; it does not interpret messages, generate replies, or send them.
 
 ## Current status
 
-This repository is at **Phase 0 — setup and project framing**. The documentation and synthetic demo fixtures are ready; the web dashboard, model adapter, retrieval implementation, and policy runtime are not implemented yet.
+**Implemented: the deterministic Determination Engine and its tests.** Initial inspection found only this README; previously linked product documents, demo data, and upstream/downstream modules were absent from the checkout.
 
-The intended first vertical slice is:
+The current slice is:
 
 ```text
-Seeded message → RAG evidence → risk/urgency classification
-→ deterministic policy action → visible reason/evidence → audit timeline
+Synthetic normalized input → deterministic policy
+→ action + separate risk/urgency/grounding + reasons + returned audit event
 ```
 
-The urgency ranking is a transparent prototype ranking, not a validated business metric. The demo uses local synthetic data and keeps external message sends disabled.
+The three recommendations are `AUTO_REPLY`, `DRAFT_FOR_REVIEW`, and `ESCALATE`. Hard-risk signals take precedence over model output. Missing information is handled through seller review. All action names are recommendations only; there are no external side effects or sending modules.
 
-## Run the setup validation
+## Run the policy tests
 
-Prerequisites: Node.js 20 or newer and Git.
+Prerequisite: Node.js 20 or newer. No dependencies need to be installed.
 
 ```powershell
-npm run validate:demo
+npm test
 ```
 
-No dependency installation is required for this Phase 0 validation. See [docs/SETUP.md](docs/SETUP.md) for the current setup and the planned application start command.
+`npm run validate:demo` is an alias for the same policy tests. It does not validate a complete product demo. If PowerShell blocks the npm script shim, use `npm.cmd test` or `node --test`.
 
-## Product and design documents
+## Contract and files
 
-- [Product definition](docs/PRODUCT.md)
-- [Architecture](docs/ARCHITECTURE.md)
-- [Deterministic policy](docs/POLICY.md)
-- [RAG knowledge base](docs/RAG-KNOWLEDGE-BASE.md)
-- [Judge-facing demo script](docs/DEMO-SCRIPT.md)
-- [Setup guide](docs/SETUP.md)
-- [Decision log](docs/DECISIONS.md)
-- [Hackathon compliance](docs/HACKATHON-COMPLIANCE.md)
+- [Engine contract, precedence, and assumptions](docs/DETERMINATION-ENGINE.md)
+- [Pure policy function](src/determination-engine.js)
+- [Policy tests](test/determination-engine.test.js)
+- [16 synthetic scenario fixtures](test/fixtures/determination-cases.json)
 
-## Demo data
+Import `determineAction` from `./src/determination-engine.js` and supply the documented input. IDs and evaluation time come from the caller, so repeated evaluation of identical input returns identical output. Each recommendation includes an audit event; persistence and seller-decision capture are not implemented.
 
-- [Synthetic messages](data/demo/messages.json)
-- [Versioned knowledge base](data/demo/knowledge-base.json)
+## Synthetic evidence and assumptions
 
-The fixtures cover a safe FAQ, an ambiguous request, payment/refund risk, a delivery deadline, complaint/cancellation escalation, missing retrieval evidence, and model failure fallback.
+Fixtures cover routine FAQ, ambiguity, payment/refund risk, delivery deadlines, complaint/cancellation, missing or conflicting evidence, model failure/unavailability, low confidence, disabled automation, model-reported high risk, and unknown intent. Message text is illustrative; only each fixture's `input` enters the engine. `expected` fields are test oracles, including any added later under `data/demo/messages.json`.
+
+Model classifications, evidence confidence, source IDs, and risk observations are manually seeded test inputs. Source IDs are stubs; no knowledge base, retrieval, model adapter, or connector exists here. Tests verify policy behavior, not interpretation accuracy.
+
+Prototype assumptions: payment, refund, complaint, and cancellation require escalation; only `faq` may qualify for automatic reply; both confidence thresholds are 0.90. Deadlines at or below zero hours are critical, through 24 hours are high urgency, and later deadlines are normal. Missing deadlines have unknown urgency. These choices are unvalidated, and risk, urgency, grounding, and action blockers remain separate.
+
+The main product assumption is that sellers will trust routine automation and the ranking of risky messages. The smallest useful validation remains manual review of 10–20 representative seller messages against human decisions; that review has not occurred.
 
 ## What is real, mocked, synthetic, and not implemented
 
-| Area | Phase 0 status |
+| Area | Current status |
 | --- | --- |
-| Product framing and policy boundaries | Real project decisions documented here |
-| Message and knowledge-base content | Synthetic, written for the Escala demo |
-| Marketplace integration | Not implemented; no live Shopee OAuth or message send |
-| Retrieval | Planned local adapter using the versioned JSON fixture |
-| LLM interpretation/drafting | Planned OpenAI adapter with mock fallback |
-| Risk and action policy | Planned deterministic module, independent of the LLM |
-| Seller UI and audit timeline | Not implemented yet |
+| Deterministic policy and contract tests | Implemented locally, independently of any model |
+| Message examples and input observations | Synthetic fixtures |
+| Recommendation audit event | Returned with every recommendation; no storage |
+| Marketplace integration and message sending | Not implemented |
+| Knowledge base, retrieval, model interpretation/drafting | Not implemented |
+| Seller UI, decisions, and audit timeline | Not implemented |
 | Accuracy, urgency quality, and adoption | Unvalidated; no production claims |
 
 ## Compliance boundary
 
-Escala is a new build in this workspace. Its implementation, UI, data, workflow details, and demo will be created for the hackathon and will not reuse DOCRELAY or SAND source code or artifacts. See [docs/HACKATHON-COMPLIANCE.md](docs/HACKATHON-COMPLIANCE.md).
+Escala is a new build in this workspace. Do not reuse DOCRELAY or SAND source code or artifacts.
 
 ## Scope discipline
 
-Authentication, multi-tenancy, live channel integrations, mobile clients, background workers, billing, and production infrastructure are explicitly deferred until the core vertical slice works end to end.
+Keep the engine deterministic and independently testable, and never allow model output to bypass hard-risk rules. Read the contract before changing policy, preserve the distinction between facts, assumptions, and plans, and verify the minimum implemented slice before expanding scope.
+
+The broader seeded-message/knowledge-base demo is future work. Full-product implementation, RAG, UI, seller messaging, and external side effects remain outside this task. Prefer synthetic connectors for a future demo, keep external side effects disabled by default, and capture audit events for every recommendation and seller decision when those workflows exist.
+
+Authentication, multi-tenancy, live channel integrations, mobile clients, analytics dashboards, background workers, billing, and production reliability work remain deferred. Do not claim an upstream or downstream module exists without checking the workspace.
