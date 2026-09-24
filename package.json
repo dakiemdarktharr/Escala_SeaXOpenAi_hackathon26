@@ -1,0 +1,9 @@
+{
+  "name": "escala-determination-engine",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Deterministic, side-effect-free Escala policy prototype",
+  "engines": { "node": ">=20" },
+  "scripts": { "test": "node --test", "validate:demo": "node --test" }
+}
