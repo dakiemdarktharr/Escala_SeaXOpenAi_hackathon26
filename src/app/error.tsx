@@ -1,11 +1,11 @@
 "use client";
 
+import { EscalaMark } from "@/components/ui/escala-mark";
+
 export default function ErrorPage({ reset }: { reset: () => void }) {
   return (
     <main className="page-error" role="alert">
-      <span className="brand-mark" aria-hidden="true">
-        e
-      </span>
+      <EscalaMark className="brand-mark" />
       <h1>The workspace couldn’t load.</h1>
       <p>
         Your saved decisions are kept on the server. Try opening the workspace

@@ -2,7 +2,7 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Claude Code (DeepSeek V4 Pro)",
+      "label": "Claude Code — light_worker (DeepSeek Flash)",
       "type": "shell",
       "command": "powershell.exe",
       "args": [
@@ -10,7 +10,9 @@
         "-ExecutionPolicy",
         "Bypass",
         "-File",
-        "${workspaceFolder}\\scripts\\start-deepseek-claude.ps1"
+        "${workspaceFolder}\\scripts\\start-deepseek-claude.ps1",
+        "-Worker",
+        "light"
       ],
       "options": {
         "cwd": "${workspaceFolder}"
@@ -18,7 +20,7 @@
       "problemMatcher": []
     },
     {
-      "label": "Claude backend MVP (DeepSeek V4 Pro)",
+      "label": "Claude Code — heavy_worker (DeepSeek V4 Pro)",
       "type": "shell",
       "command": "powershell.exe",
       "args": [
@@ -26,7 +28,45 @@
         "-ExecutionPolicy",
         "Bypass",
         "-File",
-        "${workspaceFolder}\\scripts\\run-deepseek-backend.ps1"
+        "${workspaceFolder}\\scripts\\start-deepseek-claude.ps1",
+        "-Worker",
+        "heavy"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Run Escala backend brief — light_worker",
+      "type": "shell",
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}\\scripts\\run-deepseek-backend.ps1",
+        "-Worker",
+        "light"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Run Escala backend brief — heavy_worker",
+      "type": "shell",
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}\\scripts\\run-deepseek-backend.ps1",
+        "-Worker",
+        "heavy"
       ],
       "options": {
         "cwd": "${workspaceFolder}"

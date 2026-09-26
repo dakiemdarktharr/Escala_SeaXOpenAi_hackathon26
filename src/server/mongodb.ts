@@ -32,6 +32,7 @@ export interface KnowledgeBaseRecord {
   updatedAt: string;
   tags: string[];
   content: string;
+  conflictGroup?: string;
 }
 
 const DB_NAME = process.env.MONGODB_DB || "escala";

@@ -1,4 +1,6 @@
-# Backend worker: phase 1
+# Historical backend brief: phase 1 (completed)
+
+This brief was executed during the initial MVP implementation. Do not launch it again for a new task; use `docs/NEXT_BACKEND_TASK.md` and follow `AGENTIC_WORKFLOW.md` instead.
 
 Implement only MongoDB connectivity and health route in this turn. Read `src/domain/contracts.ts` and `docs/POLICY.md`, then code immediately. No more package/source research.
 

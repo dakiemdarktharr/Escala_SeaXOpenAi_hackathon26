@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { InboxResponse } from "@/domain/contracts";
 import { Drawer } from "@/components/ui/drawer";
+import { EscalaMark } from "@/components/ui/escala-mark";
 import { Icon } from "@/components/ui/icon";
 import { apiClient, errorMessage } from "./api";
 import {
@@ -178,9 +179,7 @@ export function InboxWorkspace({
           href={mode === "sample" ? "/?preview=1" : "/"}
           aria-label="Escala inbox"
         >
-          <span className="brand-mark" aria-hidden="true">
-            e
-          </span>
+          <EscalaMark className="brand-mark" />
           <span>
             escala<span className="brand-period">.</span>
           </span>

@@ -20,6 +20,8 @@ import {
 import { getDemoMessages, seedDatabase } from "./repository";
 import type { KnowledgeBaseRecord, SyntheticThreadRecord } from "./mongodb";
 import { pingDatabase } from "./mongodb";
+import { retrieveKnowledge } from "./retrieval.mjs";
+import { matchFaqTemplate } from "./faq-templates.mjs";
 import {
   APPROVED_AVAILABILITY_ANSWER,
   detectHardRisk,
@@ -129,8 +131,14 @@ export async function getThreadDetail(threadId: string): Promise<ThreadDetailRes
   ]);
   const fixture = fixtures.find((item) => item.threadId === threadId);
   if (!fixture) throw new ServiceError(404, "THREAD_NOT_FOUND", "Conversation not found.");
-  const evidenceIds = new Set((fixture as typeof fixture & { expectedEvidenceIds?: string[] }).expectedEvidenceIds ?? []);
-  const evidence = knowledge.filter((item) => evidenceIds.has(item.id)).map(toEvidence);
+  const retrieval = retrieveKnowledge(fixture.text, knowledge, {
+    asOf: fixture.receivedAt,
+    limit: RETRIEVE_LIMIT,
+  });
+  const evidence = retrieval.evidence.map((item) => toEvidence({
+    id: item.id, title: item.title, content: item.content, version: item.version,
+    sourceLabel: item.sourceLabel, type: item.type,
+  } as KnowledgeBaseRecord));
   const storedRecommendation = (recommendations[0] as StoredRecommendation | undefined) ?? null;
   const recommendation = storedRecommendation
     ? Object.fromEntries(
@@ -209,8 +217,15 @@ export async function createRecommendation(threadId: string): Promise<{ recommen
   const fixture = fixtures.find((item) => item.threadId === threadId);
   if (!fixture) throw new ServiceError(404, "THREAD_NOT_FOUND", "Conversation not found.");
   const knowledge = await (await getKnowledgeBaseCollection()).find({ status: "ACTIVE" }).toArray();
-  const expectedEvidenceIds = new Set((fixture as typeof fixture & { expectedEvidenceIds?: string[] }).expectedEvidenceIds ?? []);
-  const evidence = knowledge.filter((item) => expectedEvidenceIds.has(item.id)).slice(0, RETRIEVE_LIMIT).map(toEvidence);
+  const retrieval = retrieveKnowledge(fixture.text, knowledge, {
+    asOf: fixture.receivedAt,
+    limit: RETRIEVE_LIMIT,
+  });
+  const evidence = retrieval.evidence.map((item) => toEvidence({
+    id: item.id, title: item.title, content: item.content, version: item.version,
+    sourceLabel: item.sourceLabel, type: item.type,
+  } as KnowledgeBaseRecord));
+  const faqTemplate = matchFaqTemplate(fixture.text, evidence);
   const risks = detectHardRisk(fixture.text, fixture.scenario);
   const reasons = [...risks.reasons];
   let action: RecommendationAction;
@@ -227,6 +242,9 @@ export async function createRecommendation(threadId: string): Promise<{ recommen
   if (risks.hard) {
     action = "ESCALATE";
     reasons.push("seller review required; no marketplace side effect will be taken");
+  } else if (retrieval.status === "CONFLICTING") {
+    action = "ESCALATE";
+    reasons.push("conflicting active knowledge sources were retrieved; a seller must resolve them");
   } else if (missingEvidence) {
     action = "ESCALATE";
     reasons.push("no verified evidence was retrieved");
@@ -234,9 +252,21 @@ export async function createRecommendation(threadId: string): Promise<{ recommen
     action = "ASK_CLARIFICATION";
     draft = fallbackDraft(fixture.scenario);
     reasons.push("order and product details are missing");
-  } else if (modelWasFailedInFixture || !process.env.OPENAI_API_KEY) {
+  } else if (modelWasFailedInFixture) {
     action = "DRAFT_FOR_SELLER";
-    modelNotice = modelWasFailedInFixture ? "The model was unavailable for this synthetic scenario; review manually." : "OpenAI is not configured; review manually.";
+    modelNotice = "The model was unavailable for this synthetic scenario; review manually.";
+    reasons.push("no model-generated answer was saved; seller review required");
+  } else if (faqTemplate) {
+    action = "AUTO_REPLY";
+    intent = faqTemplate.intent;
+    confidence = 1;
+    draft = faqTemplate.draft;
+    modelStatus = "deterministic";
+    modelNotice = faqTemplate.reason;
+    reasons.push(faqTemplate.reason);
+  } else if (!process.env.OPENAI_API_KEY) {
+    action = "DRAFT_FOR_SELLER";
+    modelNotice = "OpenAI is not configured; review manually.";
     reasons.push("no model-generated answer was saved; seller review required");
   } else {
     try {
@@ -281,7 +311,9 @@ export async function createRecommendation(threadId: string): Promise<{ recommen
 
   const now = new Date().toISOString();
   const recommendation: RecommendationRecord = {
-    id: randomUUID(), threadId, action, intent, risk: thread.urgency, confidence, draft,
+    id: randomUUID(), threadId, action, intent,
+    risk: risks.hard ? "high" : action === "AUTO_REPLY" ? "low" : "medium",
+    confidence, draft,
     reasons, evidence, policyVersion: POLICY_VERSION, modelStatus,
     ...(modelNotice ? { modelNotice } : {}), createdAt: now,
   };

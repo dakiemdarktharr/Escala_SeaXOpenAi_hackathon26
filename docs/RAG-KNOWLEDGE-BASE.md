@@ -1,44 +1,35 @@
 # RAG knowledge base
 
-## MVP approach
+## Current MVP retrieval
 
-The MVP uses a small local JSON knowledge base at [data/demo/knowledge-base.json](../data/demo/knowledge-base.json). It is intentionally not a production ingestion platform. Each document is short, realistic, versioned, and attributable to a source type such as store FAQ, product facts, shipping rules, policy, approved response, or seller constraint.
+The seeded, synthetic English knowledge base is data/demo/knowledge-base.json; MongoDB stores versioned records in knowledge_base. src/server/retrieval.mjs runs local BM25-style lexical ranking over title, tags, and content. Retrieval costs no OpenAI tokens and does not call an embedding service.
 
-## Evidence model
+The adapter accepts a message, a set of records, and the message timestamp. It returns up to four ranked evidence records with ID, version, source label, matched terms, and score:
 
-Each document has:
+- Only status ACTIVE records are eligible.
+- A record is eligible only when effectiveFrom is at or before the message timestamp.
+- A missing lexical match returns EMPTY; the caller must not ask an LLM to invent missing facts.
+- Records with an explicitly shared conflictGroup and different content return CONFLICTING; the caller escalates and retains both references.
+- Normal evidence returns FOUND. A retrieval score is a ranking signal, not a probability or grounding proof.
 
-```text
-id, version, title, type, status, effectiveFrom, sourceLabel,
-content, tags, updatedAt
-```
+The recommendation records the exact evidence IDs and versions. The interface shows evidence text and its source label. Model output is untrusted and may cite only retrieved evidence.
 
-An answer or recommendation retains the document `id` and `version` as evidence references. A UI evidence panel should show the title, source label, version, and the exact supporting snippet.
+## Cost-aware answer path
 
-## Retrieval contract
+1. Run hard-risk policy without an LLM.
+2. Retrieve local knowledge.
+3. Return a safe non-automatic action on empty or conflicting evidence.
+4. Match a reviewed answer template only when all required evidence IDs and narrow query conditions are present. The template path skips OpenAI and does not ask the seller to retype a routine answer.
+5. Call OpenAI only for remaining safe language work. Treat provider failure as a seller-review fallback.
 
-The planned local adapter accepts a normalized message and returns:
+Template rules currently cover the synthetic size-M availability plus delivery FAQ and cotton-tote care FAQ. They are examples for the small demo corpus, not generalized automation coverage. External send remains disabled; AUTO_REPLY creates a local recommendation and never sends a message.
 
-```text
-{
-  evidence: [{ id, version, title, snippet, relevanceReason }],
-  retrievalStatus: "FOUND" | "EMPTY" | "CONFLICTING"
-}
-```
+## Expansion path
 
-Retrieval is a support signal, not permission to answer. The grounding check must verify that claims in a candidate response are supported by returned evidence.
+Keep MongoDB as the source of versioned knowledge. When the corpus grows beyond reliable lexical matching, compare hybrid BM25 plus embeddings against the same held-out English support set. Pin an embedding model and index version; filter by tenant/source/status/effective date before retrieval; evaluate recall@k, evidence precision, conflict detection, and answer grounding. Do not add vector infrastructure until measured retrieval failures justify its operational and token cost.
 
-## Versioning and conflicts
+## Knowledge authoring
 
-Only documents with `status=ACTIVE` and an effective date at or before the message timestamp should be eligible. If active documents conflict, preserve both references, mark retrieval as `CONFLICTING`, and block automatic reply until a seller resolves it.
+Each record has id, version, title, type, status, effectiveFrom, sourceLabel, content, tags, and updatedAt. Optional conflictGroup explicitly joins facts that cannot both be true. Archive superseded facts; do not leave old and new versions simultaneously active unless a deliberate conflict needs seller resolution.
 
-## Fallback behavior
-
-- `FOUND` plus grounded low-risk answer: eligible for policy evaluation;
-- `EMPTY`: no invented answer; ask for clarification or escalate/draft for seller review;
-- `CONFLICTING`: show both evidence references and escalate or require seller review;
-- model or grounding failure: retain the failure reason and use a safe non-automatic action.
-
-## Demo knowledge documents
-
-The fixture includes product facts, shipping rules, returns/exchange policy, payment-review guidance, an approved availability example, a store FAQ, and seller-specific constraints. These are synthetic demo content and not official marketplace policy.
+Demo records are synthetic and are not official marketplace policies.

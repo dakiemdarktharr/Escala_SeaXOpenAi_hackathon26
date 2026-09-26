@@ -4,14 +4,16 @@
 
 Deliver a working seller support-operations dashboard inspired by Shopee Seller Centre patterns. A seller can inspect a prioritized inbox, understand why a conversation needs attention, review verified knowledge evidence, request a safe recommendation, and record an approval/edit/escalation decision. This is a seller-side decision-support tool, not an autonomous marketplace agent.
 
-## Equal worker split
+## Worker responsibilities and ownership
 
-| Worker | Owned scope | Files |
+| Worker | Effort and assignment | File boundary |
 | --- | --- | --- |
-| `build_1` (Astra) | Responsive seller inbox UI, visual system, navigation, conversation queue/detail, evidence/order context, seller decision controls, accessible loading/error/empty states | `src/app/**`, `src/components/**`, `src/styles/**`, frontend-only assets/config as coordinated |
-| Claude Code + DeepSeek V4 Pro | Next.js API routes, MongoDB repositories/index/seed, OpenAI Responses adapter, deterministic policy/urgency, grounding, recommendation and decision audit persistence, API validation/fallback | `src/app/api/**`, `src/server/**`, `src/domain/**` implementation helpers, persistence/config docs as coordinated |
+| `Frontend_Astra` (Codex) | Owns the seller inbox UI, visual system, navigation, conversation queue/detail, evidence/order context, seller decision controls, and accessible states | `src/app/page.tsx`, non-API app routes/layout, `src/components/**`, `src/styles/**`, frontend-only assets |
+| `heavy_worker` (Claude Code + DeepSeek V4 Pro) | Complex backend design, policy/security boundaries, persistence invariants, and difficult API integration | Explicitly assigned backend paths, normally `src/app/api/**` and complex parts of `src/server/**` |
+| `light_worker` (Claude Code + DeepSeek Flash) | Small deterministic backend slices; when finished early, review frozen Heavy checkpoints and apply only assigned localized fixes | Exact low-risk paths assigned per task; no overlap with active Heavy edits |
+| Orchestrator (Codex) | Shared interfaces, request/response contracts, integration, final review, verification, and commits | `src/domain/contracts.ts`, shared/config paths, and Git operations |
 
-`src/domain/contracts.ts` is the shared API contract and is owned by the orchestrator. Workers should import it and not change it without coordination. Keep UI and API implementation in their owned paths. No worker commits; integration and sole commit belong to the orchestrator.
+Do not divide by equal ticket count. Assign difficult work to Heavy and independent low-effort work to Light only when the saved Heavy effort is worth the extra context and coordination. `src/domain/contracts.ts` remains orchestrator-owned. Workers never commit or push.
 
 ## User journeys
 
@@ -32,4 +34,4 @@ Deliver a working seller support-operations dashboard inspired by Shopee Seller 
 - `npm run lint`, `npm run typecheck`, and `npm run build` pass once configured. User requested the app be tested and started.
 ## Environment
 
-See `.env.example`. Runtime model configuration is `OPENAI_MODEL=gpt-5.6-luna` and `OPENAI_REASONING_EFFORT=xhigh`. `OPENAI_API_KEY` belongs only to the Escala runtime. `DEEPSEEK_API_KEY` belongs only to Claude Code. `VERCEL_TOKEN` is to be created by the user in the Vercel account and pasted into ignored `.env.local`.
+See `.env.example`. Runtime model configuration is `OPENAI_MODEL=gpt-5.6-luna` and `OPENAI_REASONING_EFFORT=xhigh`. `OPENAI_API_KEY` belongs only to Escala runtime; the separate `DEEPSEEK_API_KEY` belongs only to Claude Code workers. A `VERCEL_TOKEN` is only needed for direct Vercel CLI use; the Git-connected project does not require it for normal deployments.

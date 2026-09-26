@@ -2010,3 +2010,53 @@ svg {
     scroll-behavior: auto !important;
   }
 }
+
+/* Escala seller-workbench refinements */
+.workspace-grid {
+  border-color: #d9dee5;
+  box-shadow: 0 2px 8px #1c2a3a0a;
+}
+.workspace-banner {
+  border: 1px solid #e5e7eb;
+  border-left: 3px solid var(--accent);
+  background: #fff;
+}
+.sample-banner {
+  border-left-color: #bf7a23;
+}
+.case-row[aria-selected="true"],
+.case-row.active {
+  background: #fff5f0;
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+.case-row:hover:not([aria-selected="true"]) {
+  background: #f8f9fb;
+}
+.search-field {
+  background: #fff;
+  border-color: #dce1e7;
+}
+.filter-tabs button[aria-pressed="true"] {
+  font-weight: 650;
+}
+.recommendation-card {
+  border-color: #dfe5e1;
+  border-top-color: #478063;
+  box-shadow: 0 1px 4px #2028330a;
+}
+.recommendation-escalate {
+  border-color: #ead9d4;
+  border-top-color: #bd5141;
+}
+:focus-visible {
+  outline-color: #245c91;
+}
+@media (hover: hover) {
+  .button,
+  .mode-switch,
+  .rail-item,
+  .filter-tabs button,
+  .icon-button {
+    transition: color 120ms ease, background-color 120ms ease, border-color 120ms ease;
+  }
+}

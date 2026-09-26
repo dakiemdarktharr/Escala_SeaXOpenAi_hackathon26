@@ -90,10 +90,13 @@ export function RecommendationPanel({
       </ul>
       <div className="recommendation-facts">
         <span>
-          {Number.isFinite(recommendation.confidence) &&
-          recommendation.confidence !== null
-            ? `${Math.round(recommendation.confidence * 100)}% ${sample ? "sample" : "model"} confidence`
-            : "Confidence unavailable"}
+          {recommendation.modelStatus === "deterministic"
+            ? "Reviewed FAQ template"
+            : Number.isFinite(recommendation.confidence) &&
+                recommendation.confidence !== null
+              ? String(Math.round(recommendation.confidence * 100)) + "% " +
+                (sample ? "sample" : "model") + " confidence"
+              : "Confidence unavailable"}
         </span>
         <span>
           {recommendation.evidence.length} evidence{" "}
@@ -107,6 +110,9 @@ export function RecommendationPanel({
             : recommendation.modelNotice ||
               "Automatic drafting is unavailable. Review the evidence and prepare a response manually."}
         </Notice>
+      )}
+      {recommendation.modelStatus === "deterministic" && recommendation.modelNotice && (
+        <Notice variant="info">{recommendation.modelNotice}</Notice>
       )}
       {!needsEscalation && !canSaveDraft && (
         <Notice variant="warning">

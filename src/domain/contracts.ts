@@ -73,7 +73,7 @@ export interface RecommendationRecord {
   reasons: string[];
   evidence: EvidenceRecord[];
   policyVersion: string;
-  modelStatus: "live" | "fallback";
+  modelStatus: "live" | "fallback" | "deterministic";
   modelNotice?: string;
   createdAt: string;
 }
