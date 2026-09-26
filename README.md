@@ -59,8 +59,11 @@ npm test
 npm run lint
 npm run typecheck
 npm run validate:demo
+npm run eval:policy
 npm run build
 ```
+
+`npm run eval:policy` runs the offline English routing challenge suite. It measures synthetic pre-model routing only; see [evaluation scope and metric definitions](docs/EVALUATION.md) before using the results in a presentation.
 
 The main runtime checks are:
 

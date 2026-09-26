@@ -139,15 +139,17 @@ export function ContextPanel({
                 <h3>Supporting knowledge</h3>
               </div>
               <p className="context-explanation">
-                Review the source before recording a reply.
+                Match the reply to these source excerpts. Each source includes its
+                version so you can trace the recommendation.
               </p>
               {evidence.length === 0 ? (
                 <div className="evidence-empty">
                   <Icon name="alert" size={20} />
                   <strong>No supporting evidence</strong>
                   <p>
-                    No verified answer is available. Keep this conversation in
-                    seller review.
+                    {detail.recommendation?.action === "ASK_CLARIFICATION"
+                      ? "Ask for the missing details before preparing a factual answer."
+                      : "No supporting source is available. Review the decision reasons before replying."}
                   </p>
                 </div>
               ) : (
@@ -178,7 +180,7 @@ export function ContextPanel({
                 <span>
                   Policy {detail.recommendation.policyVersion}
                   <br />
-                  <small>Recommendations stay subject to seller review.</small>
+                  <small>Recording a decision does not send a buyer message.</small>
                 </span>
               </div>
             )}

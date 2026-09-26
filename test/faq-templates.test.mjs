@@ -14,7 +14,7 @@ function evidenceFor(message) {
 }
 
 test("complete approved availability FAQ uses the deterministic answer path", () => {
-  const message = "Is the Blue Linen Shirt available in size M, and how long is standard delivery?";
+  const message = "Is the Blue Linen Shirt available in size M, and how long does delivery to Ho Chi Minh City take?";
   const evidence = evidenceFor(message);
   const match = matchFaqTemplate(message, evidence);
   assert.equal(match?.intent, "product_and_shipping_faq");
@@ -36,6 +36,26 @@ test("a template never answers when one required evidence record is missing", ()
 });
 
 test("an incomplete availability question does not match the complete FAQ template", () => {
-  const message = "Is size M available?";
+  const message = "Is the Blue Linen Shirt available in size M?";
   assert.equal(matchFaqTemplate(message, evidenceFor(message)), null);
+});
+
+test("availability template never substitutes a different product", () => {
+  const message = "Is a red silk dress available in size M, and how long does delivery to Ho Chi Minh City take?";
+  assert.equal(matchFaqTemplate(message, evidenceFor(message)), null);
+});
+
+test("availability template never substitutes the supported city for another destination", () => {
+  const message = "Is the Blue Linen Shirt available in size M, and how long does delivery to Bangkok take?";
+  assert.equal(matchFaqTemplate(message, evidenceFor(message)), null);
+});
+
+test("required IDs cannot substitute for evidence that does not verify the answer facts", () => {
+  const message = "Is the Blue Linen Shirt available in size M, and how long does delivery to Ho Chi Minh City take?";
+  const evidence = evidenceFor(message).map((item) => ({
+    ...item,
+    content: "A different product has no listed stock. Shipping destination and timing are unknown.",
+    snippet: "A different product has no listed stock. Shipping destination and timing are unknown.",
+  }));
+  assert.equal(matchFaqTemplate(message, evidence), null);
 });

@@ -17,7 +17,7 @@ Keep routine, supported work moving without making sellers retype known answers.
 
 A common FAQ that has a verified answer should not become a seller typing task just because an LLM is unavailable or has a low score. Use a reviewed template when the intent terms are specific and required evidence IDs are all present. Add templates only for frequent intents with stable facts; version the template with the policy and keep regression examples.
 
-The MVP demonstrates product-size availability plus shipping estimate and cotton-tote care. The availability template requires product, shipping, and approved-answer evidence. The care template requires the active store FAQ evidence. Ambiguous exchange questions still request the missing order/date; financial, cancellation, safety, or complaint signals still go to the seller.
+The MVP demonstrates product-size availability plus shipping estimate and cotton-tote care. The availability template requires evidence whose content supports the exact Blue Linen Shirt size and Ho Chi Minh City estimate, plus an approved answer; it refuses a different product or destination. The care template requires active evidence whose content supports every care instruction and accepts only a narrow single-product question; mixed-product or unsupported washing conditions remain outside the template. Ambiguous exchange questions still request the missing order/date; financial, cancellation, safety, or complaint signals still go to the seller.
 
 AUTO_REPLY means a locally prepared, policy-approved recommendation. ESCALA_ENABLE_EXTERNAL_SEND=false means the app does not send it to a buyer. The seller remains the actor for any future external sending.
 

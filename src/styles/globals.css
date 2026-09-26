@@ -2060,3 +2060,40 @@ svg {
     transition: color 120ms ease, background-color 120ms ease, border-color 120ms ease;
   }
 }
+/* Make the processing route and seller action readable without interpreting risk badges. */
+.recommendation-route {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin-top: 16px;
+  padding: 12px;
+  border: 1px solid #dce4eb;
+  border-radius: 6px;
+  background: #f5f8fb;
+  color: #344f67;
+}
+.recommendation-route > svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.recommendation-route strong,
+.recommendation-next-step strong {
+  font-size: 13px;
+  font-weight: 650;
+}
+.recommendation-route p,
+.recommendation-next-step p {
+  margin: 3px 0 0;
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.recommendation-route.template-route {
+  border-color: #cfe3d6;
+  background: #f0f8f2;
+  color: #285b3c;
+}
+.recommendation-next-step {
+  padding: 0 0 14px;
+  color: #424952;
+}

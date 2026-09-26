@@ -9,6 +9,7 @@
   },
   "scripts": {
     "validate:demo": "node scripts/validate-demo-data.mjs",
+    "eval:policy": "node scripts/eval/evaluate-policy.mjs",
     "test": "node --test",
     "dev": "next dev",
     "build": "next build",

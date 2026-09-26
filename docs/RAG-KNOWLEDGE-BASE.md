@@ -19,7 +19,7 @@ The recommendation records the exact evidence IDs and versions. The interface sh
 1. Run hard-risk policy without an LLM.
 2. Retrieve local knowledge.
 3. Return a safe non-automatic action on empty or conflicting evidence.
-4. Match a reviewed answer template only when all required evidence IDs and narrow query conditions are present. The template path skips OpenAI and does not ask the seller to retype a routine answer.
+4. Match a reviewed answer template only when all required evidence IDs, versions/content facts, and narrow query conditions are present. The availability template requires the exact Blue Linen Shirt and Ho Chi Minh City facts; the care template accepts only narrow cotton-tote care questions and declines mixed-product, unsupported-condition, or instruction-override text. The template path skips OpenAI and does not ask the seller to retype a routine answer.
 5. Call OpenAI only for remaining safe language work. Treat provider failure as a seller-review fallback.
 
 Template rules currently cover the synthetic size-M availability plus delivery FAQ and cotton-tote care FAQ. They are examples for the small demo corpus, not generalized automation coverage. External send remains disabled; AUTO_REPLY creates a local recommendation and never sends a message.

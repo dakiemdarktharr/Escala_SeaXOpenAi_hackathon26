@@ -50,6 +50,29 @@ export function RecommendationPanel({
     success && submittedKind === "reply" && submittedDraft === draft,
   );
   const escalationRecorded = Boolean(success && submittedKind === "escalation");
+  const deterministic = recommendation.modelStatus === "deterministic";
+  const modelAssisted = recommendation.modelStatus === "live";
+  const routeLabel = deterministic
+    ? "Reviewed answer template"
+    : modelAssisted
+      ? "Model-assisted recommendation"
+      : "Policy and seller review";
+  const routeDescription = deterministic
+    ? sample
+      ? "Sample of an approved FAQ route that skips OpenAI."
+      : "This recommendation used an approved FAQ template without calling OpenAI."
+    : modelAssisted
+      ? sample
+        ? "Illustrative model result; no live API call is made in preview."
+        : "OpenAI helped prepare this recommendation. Check its claims against the sources."
+      : "Check the decision reasons below to see what needs attention.";
+  const nextStep = needsEscalation || !canSaveDraft
+    ? "Add any useful context and record an escalation for a person to review."
+    : clarification
+      ? "Review the question and record the clarification needed from the buyer."
+      : draft.trim()
+        ? "Review the prepared reply and record approval, or edit it if needed."
+        : "Use the supporting sources to prepare a reply, then save your draft.";
 
   function saveDraft() {
     setSubmittedDraft(draft);
@@ -80,7 +103,14 @@ export function RecommendationPanel({
         </div>
         <LevelBadge kind="risk" level={recommendation.risk} />
       </div>
-      <ul className="reason-list">
+      <div className={`recommendation-route${deterministic ? " template-route" : ""}`}>
+        <Icon name={deterministic ? "check" : modelAssisted ? "spark" : "shield"} size={17} />
+        <div>
+          <strong>{routeLabel}</strong>
+          <p>{routeDescription}</p>
+        </div>
+      </div>
+      <ul className="reason-list" aria-label="Decision reasons">
         {recommendation.reasons.map((reason, index) => (
           <li key={`${reason}-${index}`}>
             <Icon name="check" size={14} />
@@ -89,31 +119,25 @@ export function RecommendationPanel({
         ))}
       </ul>
       <div className="recommendation-facts">
-        <span>
-          {recommendation.modelStatus === "deterministic"
-            ? "Reviewed FAQ template"
-            : Number.isFinite(recommendation.confidence) &&
-                recommendation.confidence !== null
-              ? String(Math.round(recommendation.confidence * 100)) + "% " +
-                (sample ? "sample" : "model") + " confidence"
-              : "Confidence unavailable"}
-        </span>
+        {modelAssisted && recommendation.confidence !== null &&
+          Number.isFinite(recommendation.confidence) && (
+            <span title="A model estimate, not a measured accuracy score.">
+              {Math.round(recommendation.confidence * 100)}% {sample ? "sample" : "model"} confidence
+              {" "}(estimate)
+            </span>
+          )}
         <span>
           {recommendation.evidence.length} evidence{" "}
           {recommendation.evidence.length === 1 ? "source" : "sources"}
         </span>
       </div>
-      {recommendation.modelStatus === "fallback" && (
-        <Notice variant="warning">
-          {sample
-            ? recommendation.modelNotice
-            : recommendation.modelNotice ||
-              "Automatic drafting is unavailable. Review the evidence and prepare a response manually."}
-        </Notice>
+      {recommendation.modelStatus === "fallback" && recommendation.modelNotice && (
+        <Notice variant="warning">{recommendation.modelNotice}</Notice>
       )}
-      {recommendation.modelStatus === "deterministic" && recommendation.modelNotice && (
-        <Notice variant="info">{recommendation.modelNotice}</Notice>
-      )}
+      <div className="recommendation-next-step">
+        <strong>Your next step</strong>
+        <p>{nextStep}</p>
+      </div>
       {!needsEscalation && !canSaveDraft && (
         <Notice variant="warning">
           No evidence supports a reply. Record an escalation so a person can
